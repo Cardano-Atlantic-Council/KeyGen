@@ -75,9 +75,7 @@ keytype=membership
 ```shell
 ./cardano-signer keygen \
 --path cc-cold \
---json-extended \
---out-skey $name-$keytype.eskey \
---out-vkey $name-$keytype.evkey > $name-$keytype-details.json
+--json-extended > $name-$keytype-details.json
 ```
 
 3. Protect your newly created file from accidental deletion or modification.
@@ -92,12 +90,16 @@ chmod 400 $name-$keytype-details.json
    Caradno payment signing key.
 
 ```shell
-payment_signing_key="5820$(jq ".cborHex" $name-$keytype.eskey -r | cut -c 5-68)"
+secret_key=$(jq ".secretKey[0:64]" $name-$keytype-details.json -r)
 ```
 
 ```shell
-jq -n --arg cborHex $payment_signing_key \
+jq -n --arg cborHex "5820$secret_key" \
 '{"type":"PaymentSigningKeyShelley_ed25519","description":"Payment Signing Key","cborHex":$cborHex}' > $name-$keytype.skey
+```
+
+```shell
+chmod 400 $name-$keytype.skey
 ```
 
 5. Create the verification (public) key
@@ -112,27 +114,29 @@ cardano-cli key verification-key \
    PEM file
 
 ```shell
-cat $name-$keytype.skey | \
-jq -r ".cborHex" | \
-cut -c 5- | \
+echo $secret_key | \
 (echo -n "302e020100300506032b657004220420" && cat) | \
 xxd -r -p | \
 base64 | \
 (echo "-----BEGIN PRIVATE KEY-----" && cat) | \
-(cat && echo "-----END PRIVATE KEY-----") > $name-$keytype-priv.pem
+(cat && echo "-----END PRIVATE KEY-----") > $name-$keytype.priv
+```
+
+```shell
+chmod 400 $name-$keytype.priv
 ```
 
 7. Create the public PEM file
 
 ```shell
-openssl pkey -in $name-$keytype-priv.pem -pubout -out $name-$keytype-pub.pem
+openssl pkey -in $name-$keytype.priv -pubout -out $name-$keytype.pub
 ```
 
 8. Create your Certificate Signing Request (make sure to follow the rules up
    above for [CSR Fields](#certificate-signing-request-csr-fields-and-values))
 
 ```shell
-openssl req -new -key $name-$keytype-priv.pem -out $name-$keytype.csr
+openssl req -new -key $name-$keytype.priv -out $name-$keytype.csr
 ```
 
 9. Check that the generated CSR matches the fields and values you expect
@@ -197,9 +201,7 @@ keytype=delegation
 ```shell
 ./cardano-signer keygen \
 --path cc-cold \
---json-extended \
---out-skey $name-$keytype.eskey \
---out-vkey $name-$keytype.evkey > $name-$keytype-details.json
+--json-extended > $name-$keytype-details.json
 ```
 
 3. Protect your newly created file from accidental deletion or modification.
@@ -214,12 +216,16 @@ chmod 400 $name-$keytype-details.json
    Caradno payment signing key.
 
 ```shell
-payment_signing_key="5820$(jq ".cborHex" $name-$keytype.eskey -r | cut -c 5-68)"
+secret_key=$(jq ".secretKey[0:64]" $name-$keytype-details.json -r)
 ```
 
 ```shell
-jq -n --arg cborHex $payment_signing_key \
+jq -n --arg cborHex "5820$secret_key" \
 '{"type":"PaymentSigningKeyShelley_ed25519","description":"Payment Signing Key","cborHex":$cborHex}' > $name-$keytype.skey
+```
+
+```shell
+chmod 400 $name-$keytype.skey
 ```
 
 5. Create the verification (public) key
@@ -234,27 +240,29 @@ cardano-cli key verification-key \
    PEM file
 
 ```shell
-cat $name-$keytype.skey | \
-jq -r ".cborHex" | \
-cut -c 5- | \
+echo $secret_key | \
 (echo -n "302e020100300506032b657004220420" && cat) | \
 xxd -r -p | \
 base64 | \
 (echo "-----BEGIN PRIVATE KEY-----" && cat) | \
-(cat && echo "-----END PRIVATE KEY-----") > $name-$keytype-priv.pem
+(cat && echo "-----END PRIVATE KEY-----") > $name-$keytype.priv
+```
+
+```shell
+chmod 400 $name-$keytype.priv
 ```
 
 7. Create the public PEM file
 
 ```shell
-openssl pkey -in $name-$keytype-priv.pem -pubout -out $name-$keytype-pub.pem
+openssl pkey -in $name-$keytype.priv -pubout -out $name-$keytype.pub
 ```
 
 8. Create your Certificate Signing Request (make sure to follow the rules up
    above for [CSR Fields](#certificate-signing-request-csr-fields-and-values))
 
 ```shell
-openssl req -new -key $name-$keytype-priv.pem -out $name-$keytype.csr
+openssl req -new -key $name-$keytype.priv -out $name-$keytype.csr
 ```
 
 9. Check that the generated CSR matches the fields and values you expect
