@@ -92,7 +92,7 @@ chmod 400 $name-$keytype-details.json
    Caradno payment signing key.
 
 ```shell
-payment_signing_key="5820$(jq ".cborHex" $name-$keytype.xskey -r | cut -c 5-68)"
+payment_signing_key="5820$(jq ".cborHex" $name-$keytype.eskey -r | cut -c 5-68)"
 ```
 
 ```shell
@@ -214,7 +214,7 @@ chmod 400 $name-$keytype-details.json
    Caradno payment signing key.
 
 ```shell
-payment_signing_key="5820$(jq ".cborHex" $name-$keytype.xskey -r | cut -c 5-68)"
+payment_signing_key="5820$(jq ".cborHex" $name-$keytype.eskey -r | cut -c 5-68)"
 ```
 
 ```shell
